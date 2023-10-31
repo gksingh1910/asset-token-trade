@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 
+	"github.com/gksingh1910/asset-token-trade/util"
 	"github.com/joho/godotenv"
 )
 
@@ -27,13 +28,20 @@ type DBConf struct {
 	Port string
 }
 
-var Cfg Config
+var Cfg *Config
 
-func init() {
-	godotenv.Load("./.env")
+func Init() error {
+	err := godotenv.Load("./.env")
+	if err != nil {
+		return &util.CustomError{
+			ErrorCode: 201,
+			ErrorMsg:  "Error in Init",
+			ErrorR:    err.Error(),
+		}
+	}
 	SrvConfig := HTTPServerConf{
 		Host: os.Getenv("SRVHOST"),
-		Port: os.Getenv("SRVHOST"),
+		Port: os.Getenv("SRVPORT"),
 	}
 	RedisConfig := CacheConf{
 		Host: os.Getenv("SRVHOST"),
@@ -43,14 +51,14 @@ func init() {
 		Host: os.Getenv("SRVHOST"),
 		Port: os.Getenv("SRVHOST"),
 	}
-	Cfg = Config{
+	Cfg = &Config{
 		HTTPServerConfig: SrvConfig,
 		CacheConfig:      RedisConfig,
 		DatabaseConfig:   PGConfig,
 	}
-
+	return nil
 }
 
-func get() *Config {
-	return &Cfg
+func Get() *Config {
+	return Cfg
 }
